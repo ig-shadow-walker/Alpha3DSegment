@@ -380,6 +380,8 @@ def better_aabb(points):
 
 
 def save_mesh(save_path, mesh, face_ids, color_map):
+    from segment_export import export_segmented_mesh_with_materials
+
     face_colors = np.zeros((len(mesh.faces), 3), dtype=np.uint8)
     for i in tqdm(range(len(mesh.faces)), disable=True):
         _max_id = face_ids[i]
@@ -391,6 +393,10 @@ def save_mesh(save_path, mesh, face_ids, color_map):
     mesh_save.visual.face_colors = face_colors
     mesh_save.export(save_path)
     mesh_save.export(save_path.replace(".glb", ".ply"))
+
+    # Export GLB with one material per part
+    materials_path = save_path.replace(".glb", "_materials.glb")
+    export_segmented_mesh_with_materials(mesh, face_ids, color_map, materials_path)
     # print('保存mesh完成')
 
     scene_mesh = trimesh.Scene()

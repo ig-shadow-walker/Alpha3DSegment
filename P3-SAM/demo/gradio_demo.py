@@ -6,6 +6,7 @@ import numpy as np
 
 from auto_mask import AutoMask
 from auto_mask_no_postprocess import AutoMask as AutoMaskNoPostProcess
+from segment_export import export_segmented_mesh_with_materials
 
 import trimesh
 
@@ -29,18 +30,9 @@ def load_mesh(mesh_file_name, post_process, seed):
             continue
         part_color = np.random.rand(3) * 255
         color_map[i] = part_color
-    face_colors = []
-    for i in face_ids:
-        if i == -1:
-            face_colors.append([0, 0, 0])
-        else:
-            face_colors.append(color_map[i])
-    face_colors = np.array(face_colors).astype(np.uint8)
-    mesh_save = mesh.copy()
-    mesh_save.visual.face_colors = face_colors
 
     file_path = 'segment_result.glb'
-    mesh_save.export(file_path)
+    export_segmented_mesh_with_materials(mesh, face_ids, color_map, file_path)
     return file_path
 
 
