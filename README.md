@@ -5,6 +5,48 @@ Available on [![Hunyuan3D-Studio](https://img.shields.io/badge/Hunyuan3D-Studio-
 
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/vSveLI1AoDw/0.jpg)](https://www.youtube.com/watch?v=vSveLI1AoDw)
 
+---
+
+### **Getting started (P3-SAM)**
+
+To run **P3-SAM** (3D part segmentation) locally:
+
+1. **Environment**  
+   Use Python 3.10 and PyTorch 2.4+ with CUDA 12.1 (or compatible). Create a virtual environment (recommended).
+
+2. **Install Sonata**  
+   Install the [Sonata](https://github.com/facebookresearch/sonata) package and its dependencies as per its repo.
+
+3. **Install P3-SAM dependencies**  
+   ```bash
+   pip install viser fpsample trimesh numba gradio safetensors huggingface_hub scikit-learn tqdm
+   ```
+
+4. **Build the Chamfer3D extension** (needs a CUDA GPU and `nvcc` in `PATH`):  
+   ```bash
+   cd P3-SAM/utils/chamfer3D
+   python setup.py install
+   cd ../../..
+   ```
+
+5. **Run the Gradio demo** (weights download from HuggingFace on first run):  
+   ```bash
+   cd P3-SAM/demo
+   python gradio_demo.py
+   ```  
+   Open the URL printed (e.g. `http://0.0.0.0:8080`) in your browser.
+
+   **Other ways to run:**  
+   - Auto-segment from CLI:  
+     `python auto_mask.py --mesh_path assets/1.glb --output_path results/1`  
+   - Interactive point-prompt app:  
+     `python app.py --data_dir assets`  
+   - Optionally download `p3sam.safetensors` from [HuggingFace](https://huggingface.co/tencent/Hunyuan3D-Part) into `P3-SAM/weights/` and use `--ckpt_path ../weights/p3sam.safetensors` with the scripts above.
+
+**X-Part** (shape decomposition) uses the same env and Sonata; pre-trained weights are not yet released (see [XPart/README.md](XPart/README.md)).
+
+---
+
 Our 3D part generation pipeline contains two key components, P3-SAM and X-Part. The holistic mesh is fed to part detection module P3-SAM to obtain the semantic features, part segmentations and part bounding boxes. Then X-Part generate the complete parts.  
 <img src="P3-SAM/images/HYpart-fullpip.jpg" alt="drawing" width="800"/>
 
