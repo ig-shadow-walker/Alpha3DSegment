@@ -100,8 +100,10 @@ import json
 
 try:
     import flash_attn
-except ImportError:
+    _flash_attn_import_error = None
+except Exception as e:
     flash_attn = None
+    _flash_attn_import_error = e
 
 from .structure import Point
 from .module import PointSequential, PointModule
@@ -187,7 +189,25 @@ class SerializedAttention(PointModule):
             assert (
                 upcast_softmax is False
             ), "Set upcast_softmax to False when enable Flash Attention"
-            assert flash_attn is not None, "Make sure flash_attn is installed."
+            # Retry import at use-time in case module wasn't available at load time
+            fa = flash_attn
+            if fa is None:
+                try:
+                    import flash_attn as _fa
+                    fa = _fa
+                    # Update module-level so other code sees it
+                    import sys
+                    mod = sys.modules.get(__name__)
+                    if mod is not None:
+                        setattr(mod, "flash_attn", _fa)
+                except Exception as e:
+                    global _flash_attn_import_error
+                    _flash_attn_import_error = e
+            assert fa is not None, (
+                "Make sure flash_attn is installed. "
+                "Install with: pip install --no-build-isolation git+https://github.com/Dao-AILab/flash-attention.git"
+                + (f" (Import error: {_flash_attn_import_error})" if _flash_attn_import_error else "")
+            )
             self.patch_size = patch_size
             self.attn_drop = attn_drop
         else:
@@ -855,8 +875,13 @@ def load(
     if ckpt_only:
         return ckpt
 
-    # 关闭flash attention
-    # ckpt["config"]['enable_flash'] = False
+    # If checkpoint requests flash but import failed, disable and warn so user can fix env
+    if ckpt["config"].get("enable_flash", False) and flash_attn is None:
+        ckpt["config"]["enable_flash"] = False
+        print("Warning: flash_attn not available; using standard attention. To enable flash attention:")
+        if _flash_attn_import_error is not None:
+            print(f"  Import error: {_flash_attn_import_error}")
+        print("  Ensure flash_attn is installed for your CUDA/PyTorch: pip install --no-build-isolation git+https://github.com/Dao-AILab/flash-attention.git")
 
     model = PointTransformerV3(**ckpt["config"])
     model.load_state_dict(ckpt["state_dict"])
