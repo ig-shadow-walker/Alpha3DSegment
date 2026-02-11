@@ -12,7 +12,11 @@ Available on [![Hunyuan3D-Studio](https://img.shields.io/badge/Hunyuan3D-Studio-
 To run **P3-SAM** (3D part segmentation) locally:
 
 1. **Environment**  
-   Use Python 3.10 and PyTorch 2.4+ with CUDA 12.1 (or compatible). Create a virtual environment (recommended).
+   Use Python 3.10 and PyTorch 2.4+ with CUDA 12.1 (or compatible). Create and activate a conda environment (recommended):
+   ```bash
+   conda create -n alpha3d python=3.10 -y
+   conda activate alpha3d
+   ```
 
 2. **Install Sonata**  
    Install the [Sonata](https://github.com/facebookresearch/sonata) package and its dependencies as per its repo.
