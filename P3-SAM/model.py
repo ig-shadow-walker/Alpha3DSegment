@@ -122,7 +122,7 @@ def load_state_dict(self,
         # download from huggingface
         print(f'trying to download model from huggingface...')
         from huggingface_hub import hf_hub_download
-        ckpt_path = hf_hub_download(repo_id="tencent/Hunyuan3D-Part", filename="p3sam/p3sam.safetensors", local_dir=os.path.join(os.path.expanduser('~'), '/.cache/p3sam/weights'))
+        ckpt_path = hf_hub_download(repo_id="tencent/Hunyuan3D-Part", filename="p3sam/p3sam.safetensors", local_dir=os.path.join(os.path.expanduser("~"), ".cache", "p3sam", "weights"))
         print(f'download model from huggingface to: {ckpt_path}')
         from safetensors.torch import load_file
         state_dict = load_file(ckpt_path)
